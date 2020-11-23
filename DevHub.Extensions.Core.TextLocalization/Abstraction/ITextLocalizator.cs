@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DevHub.Extensions.Core.TextLocalization.Abstraction
+﻿namespace DevHub.Extensions.Core.TextLocalization
 {
-    public interface ITextLocalizator<T>
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="TLanguage">TLanguage class</typeparam>
+    public interface ITextLocalizator<TLanguage>
     {
         public string this[string key] { get; }
-        public T Text { get; }
+        public TLanguage Text { get; }
     }
 }

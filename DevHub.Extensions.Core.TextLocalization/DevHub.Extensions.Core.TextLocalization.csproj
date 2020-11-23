@@ -2,14 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Authors>DevHub</Authors>
     <Company />
     <Product>TextLocalization</Product>
     <Description>Simple Text Localization using json format files.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>Localization,Localizer,Text,DevHub</PackageTags>
+    <RepositoryUrl>https://github.com/Krum0/DevHub.Extensions.TextLocalization</RepositoryUrl>
+    <NeutralLanguage />
   </PropertyGroup>
 
   <ItemGroup>

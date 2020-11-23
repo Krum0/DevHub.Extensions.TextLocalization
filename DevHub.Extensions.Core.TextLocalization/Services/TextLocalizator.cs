@@ -1,26 +1,35 @@
-﻿using DevHub.Extensions.Core.TextLocalization.Abstraction;
-using Microsoft.Extensions.Caching.Distributed;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DevHub.Extensions.Core.TextLocalization.Services
+﻿namespace DevHub.Extensions.Core.TextLocalization
 {
-    public class TextLocalizator<T> : ITextLocalizator<T> where T : new()
+    using System.Globalization;
+    using System.IO;
+    using System.Text;
+
+    using Microsoft.Extensions.Caching.Distributed;
+    
+    using Newtonsoft.Json.Linq;
+
+
+
+
+    // Summary:
+    //     Represents a type used to perform Localized texts.
+    //
+    // Remarks:
+    //     Aggregates most localized texts to a single method.
+    public class TextLocalizator<TLanguage> : ITextLocalizator<TLanguage> where TLanguage : new()
     {
         private readonly IDistributedCache store;
         private readonly string path;
+
+
         public TextLocalizator(IDistributedCache store)
         {
-            this.store = store;
             var cultureKey = CultureInfo.CurrentCulture.Name;
-            this.path =  Path.Combine(this.Configuration<T>().DefaultPath,$"{cultureKey}.json");
+            this.store = store;
+            this.path =  Path.Combine(this.Configuration<TLanguage>().DefaultPath,$"{cultureKey}.json");
         }
+
+
         private string GetSourceFromFile()
         {
             var source = "{}";
@@ -55,25 +64,34 @@ namespace DevHub.Extensions.Core.TextLocalization.Services
             }
             return JObject.Parse(source);
         }
-        private T GetNode()
+        private TLanguage GetNode()
         {
-            var nodeKey = typeof(T).Name;
+            var nodeKey = typeof(TLanguage).Name;
             var source = this.GetSourceFromCache();
             var node = source.SelectToken(nodeKey);
             if (node == null)
             {
-                node = JToken.FromObject(new T());
+                node = JToken.FromObject(new TLanguage());
                 source.Add(nodeKey, node);
                 this.SaveSourceToFile(source.ToString());
             }
-            return node.ToObject<T>();
+            return node.ToObject<TLanguage>();
         }
 
+        /// <summary>
+        /// Return Localized value by name.
+        /// </summary>
+        /// <param name="key">Name of property</param>
+        /// <returns>Localized value</returns>
         public string this[string key] => this.Text.GetType()
                                               .GetProperty(key)
                                               .GetValue(this.Text)?
                                               .ToString() ??
-                                              $"Not set default value for {typeof(T).Name}:{key}";
-        public T Text => GetNode();
+                                              $"Not set default value for {typeof(TLanguage).Name}:{key}";
+
+        /// <summary>
+        /// TLanguage class object
+        /// </summary>
+        public TLanguage Text => GetNode();
     }
 }

@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DevHub.Extensions.Core.TextLocalization
+﻿namespace DevHub.Extensions.Core.TextLocalization
 {
+    using System.Globalization;
+
     public class SupportedCultures
     {
+        /// <summary>
+        /// List of default Cultures
+        /// </summary>
         public static CultureInfo[] Cultures { get; } = new CultureInfo[] {
             new CultureInfo("en-US"),
             new CultureInfo("bg-BG"),
