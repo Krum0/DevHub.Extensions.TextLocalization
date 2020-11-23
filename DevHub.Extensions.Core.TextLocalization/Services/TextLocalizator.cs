@@ -3,13 +3,10 @@
     using System.Globalization;
     using System.IO;
     using System.Text;
-
+    using System.Threading.Tasks;
     using Microsoft.Extensions.Caching.Distributed;
     
     using Newtonsoft.Json.Linq;
-
-
-
 
     // Summary:
     //     Represents a type used to perform Localized texts.
@@ -21,7 +18,6 @@
         private readonly IDistributedCache store;
         private readonly string path;
 
-
         public TextLocalizator(IDistributedCache store)
         {
             var cultureKey = CultureInfo.CurrentCulture.Name;
@@ -29,8 +25,7 @@
             this.path =  Path.Combine(this.Configuration<TLanguage>().DefaultPath,$"{cultureKey}.json");
         }
 
-
-        private string GetSourceFromFile()
+        private async Task<string> GetSourceFromFile()
         {
             var source = "{}";
             if (File.Exists(path))
@@ -39,41 +34,49 @@
             }
             else
             {
-                this.SaveSourceToFile(source);
+               await this.SaveSourceToFile(source);
             }
             return source;
         }
-        private void SaveSourceToFile(string source)
+        private async Task SaveSourceToFile(string source)
         {
             var dir = Path.GetDirectoryName(path);
             if (!Directory.Exists(dir))
             {
                 Directory.CreateDirectory(dir);
             }
-            File.WriteAllText(path, source, Encoding.UTF8);
+            await File.WriteAllTextAsync(path, source, Encoding.UTF8);
         }
-        private JObject GetSourceFromCache()
+        private async Task<JObject> GetSourceFromCache()
         {
             var cultureKey = CultureInfo.CurrentCulture.Name;
-            var source = store.GetString(cultureKey);
+            var source = await store.GetStringAsync(cultureKey);
             if (source == null)
             {
-                var sourceFormFile = GetSourceFromFile();
-                store.SetString(cultureKey, sourceFormFile);
-                source = store.GetString(cultureKey);
+                return await this.SetSourceToCache();
             }
             return JObject.Parse(source);
         }
-        private TLanguage GetNode()
+        private async Task<JObject> SetSourceToCache()
+        {
+            var cultureKey = CultureInfo.CurrentCulture.Name;
+            var sourceFormFile = await GetSourceFromFile();
+            await store.SetStringAsync(cultureKey, sourceFormFile);
+            var source = await store.GetStringAsync(cultureKey);
+            return JObject.Parse(source);
+        }
+        private async Task<TLanguage> GetNode()
         {
             var nodeKey = typeof(TLanguage).Name;
-            var source = this.GetSourceFromCache();
-            var node = source.SelectToken(nodeKey);
+            var source = await this.GetSourceFromCache();
+            var node =  source.SelectToken(nodeKey);
             if (node == null)
             {
                 node = JToken.FromObject(new TLanguage());
                 source.Add(nodeKey, node);
-                this.SaveSourceToFile(source.ToString());
+                await this.SaveSourceToFile(source.ToString());
+                source = await this.SetSourceToCache();
+                node = source.SelectToken(nodeKey);
             }
             return node.ToObject<TLanguage>();
         }
@@ -92,6 +95,6 @@
         /// <summary>
         /// TLanguage class object
         /// </summary>
-        public TLanguage Text => GetNode();
+        public TLanguage Text => GetNode().Result;
     }
 }

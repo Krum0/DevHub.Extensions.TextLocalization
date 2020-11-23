@@ -12,6 +12,9 @@
     <PackageTags>Localization,Localizer,Text,DevHub</PackageTags>
     <RepositoryUrl>https://github.com/Krum0/DevHub.Extensions.TextLocalization</RepositoryUrl>
     <NeutralLanguage />
+    <AssemblyVersion>1.0.0.1</AssemblyVersion>
+    <FileVersion>1.0.0.1</FileVersion>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
